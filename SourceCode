@@ -84,7 +84,6 @@
 <body>
 <h1>ISEKAI Memories Damage Calculator</h1>
 
-
 <div class="container">
     <div class="form-container">
         <form id="damageForm">
@@ -120,46 +119,55 @@
                 <option value="no">No</option>
                 <option value="yes">Yes</option>
             </select>
-            <label for="critDmg">Crit Damage (%):</label>
-            <input type="number" id="critDmg" value="0" step="any">
+            <div id="critDmgControls" class="hidden">
+                <label for="critDmg">Crit Damage (%):</label>
+                <input type="number" id="critDmg" value="0" step="any">
+            </div>
 
             <label for="aegis">Apply Aegis?</label>
             <select id="aegis">
                 <option value="no">No</option>
                 <option value="yes">Yes</option>
             </select>
-            <label for="pdef">PartnerDef:</label>
-            <input type="number" id="pdef" value="0" step="any">
-            <label for="aegisDmg">Aegis Power (%):</label>
-            <input type="number" id="aegisDmg" value="0" step="any">
-           
+            <div id="aegisControls" class="hidden">
+                <label for="pdef">PartnerDef:</label>
+                <input type="number" id="pdef" value="0" step="any">
+                <label for="aegisDmg">Aegis Power (%):</label>
+                <input type="number" id="aegisDmg" value="0" step="any">
+            </div>
 
             <label for="synergy">Apply Synergy?</label>
             <select id="synergy">
                 <option value="no">No</option>
                 <option value="yes">Yes</option>
             </select>
-            <label for="patk">PartnerAtk:</label>
-            <input type="number" id="patk" value="0" step="any">
-            <label for="synergyDmg">Synergy Power (%):</label>
-            <input type="number" id="synergyDmg" value="0" step="any">
-            
+            <div id="synergyControls" class="hidden">
+                <label for="patk">PartnerAtk:</label>
+                <input type="number" id="patk" value="0" step="any">
+                <label for="synergyDmg">Synergy Power (%):</label>
+                <input type="number" id="synergyDmg" value="0" step="any">
+            </div>
 
             <label for="pierce">Apply Pierce?</label>
             <select id="pierce">
                 <option value="no">No</option>
                 <option value="yes">Yes</option>
-                
             </select>
-            <label for="piercePower">Pierce Power (%):</label>
-            <input type="number" id="piercePower" value="0" step="any">
+            <div id="pierceControls" class="hidden">
+                <label for="piercePower">Pierce Power (%):</label>
+                <input type="number" id="piercePower" value="0" step="any">
+            </div>
 
             <label for="attributeAdvantage">Attribute Advantage:</label>
             <select id="attributeAdvantage">
-                <option value="neutral">Neutral</option>
                 <option value="advantage">Advantage</option>
+                <option value="neutral">Neutral</option>
                 <option value="resist">Resist</option>
             </select>
+
+            <!-- Weakness Strike input added -->
+            <label for="weaknessStrike">Weakness Strike (%):</label>
+            <input type="number" id="weaknessStrike" value="0" step="any">
         </form>
     </div>
 
@@ -171,7 +179,9 @@
 
 <script>
 function calculateDamage() {
+    // Get all input values
     const baseAtk = parseFloat(document.getElementById('baseAtk').value) || 0;
+    const atkBuff = parseFloat(document.getElementById('atkBuff').value) || 0;
     const MPatk = parseFloat(document.getElementById('MPatk').value) || 0;
     const MPDMG = parseFloat(document.getElementById('MPDMG').value) || 0;
     const elemAtkBonus = parseFloat(document.getElementById('elemAtkBonus').value) || 0;
@@ -179,45 +189,45 @@ function calculateDamage() {
     const ultMult = parseFloat(document.getElementById('ultMult').value) || 0;
     const ultDmgBonus = parseFloat(document.getElementById('ultDmgBonus').value) || 0;
     const ultResDown = parseFloat(document.getElementById('ultResDown').value) || 0;
-
     const crit = document.getElementById('crit').value;
     const critDmg = (parseFloat(document.getElementById('critDmg').value) || 0) / 100;
-
     const aegis = document.getElementById('aegis').value;
     const aegisDmg = (parseFloat(document.getElementById('aegisDmg').value) || 0) / 100;
     const pdef = parseFloat(document.getElementById('pdef').value) || 0;
-
     const synergy = document.getElementById('synergy').value;
     const synergyDmg = (parseFloat(document.getElementById('synergyDmg').value) || 0) / 100;
     const patk = parseFloat(document.getElementById('patk').value) || 0;
-
     const pierce = document.getElementById('pierce').value;
     const piercePower = (parseFloat(document.getElementById('piercePower').value) || 0);
-
     const attributeAdvantage = document.getElementById('attributeAdvantage').value;
-    
-        if (synergy === 'yes') {
-        synatk= (patk*0.4)
-    } else if (synergy === 'no') {
-        synatk= 0
-    }
-    if (aegis === 'yes') {
-        aegisatk= (pdef*0.4)
-    } else if (aegis === 'no') {
-        aegisatk= 0
-    }
+    const weaknessStrike = parseFloat(document.getElementById('weaknessStrike').value) || 0;
 
-    const atkPart = 0.4 * (baseAtk+synatk+aegisatk)* (1 + MPatk / 100) * (1 + elemAtkBonus / 100);
+    // Update visibility of controls
+    document.getElementById('critDmgControls').style.display = (crit==='yes')?'block':'none';
+    document.getElementById('aegisControls').style.display = (aegis==='yes')?'block':'none';
+    document.getElementById('synergyControls').style.display = (synergy==='yes')?'block':'none';
+    document.getElementById('pierceControls').style.display = (pierce==='yes')?'block':'none';
+
+    // Calculate synergy and aegis attack contributions
+    const synatk = (synergy === 'yes') ? (patk*0.19) : 0;
+    const aegisatk = (aegis === 'yes') ? (pdef*0.4) : 0;
+
+    // Base ATK part minus DEF
+    const atkPart = 0.4 * (baseAtk+synatk+aegisatk)* (1 + MPatk / 100) * (1 + elemAtkBonus / 100) * (1 + atkBuff/ 100);
     const defPart = 0.2 * enemyDef ;
     let baseDmg = atkPart - defPart;
     if (baseDmg < 0) baseDmg = 0;
 
+    // Ult multiplier
     const ultPart = (ultMult / 100) * (1 + ultDmgBonus / 100)* (1 + ultResDown / 100);
     let damage = baseDmg * ultPart;
+
+    // Phys/Mag ATK DMG
     if (MPDMG !== 0 && !isNaN(MPDMG)) {
         damage *= (1+MPDMG / 100);
     }
-    // Crit, Aegis, Synergy, Pierce
+
+    // Crit, Aegis, Synergy, Pierce multipliers
     if (crit === 'yes') {
         damage *= (1.3 + critDmg);
     }
@@ -230,13 +240,16 @@ function calculateDamage() {
     if (pierce === 'yes') {
         damage = (damage + baseAtk * 0.06) * (1 + piercePower / 100);
     }
-    // Apply attribute advantage multiplier
+
+    // Apply attribute advantage and Weakness Strike
     if (attributeAdvantage === 'advantage') {
-        damage *= 1.5;
+        damage *=   (1.5 + weaknessStrike/100);
+       
     } else if (attributeAdvantage === 'resist') {
         damage *= 0.7;
     }
 
+    // Output final damage
     document.getElementById('result').innerHTML = `Damage: ${Math.round(damage)}`;
     document.getElementById('details').innerHTML = '';
 }
@@ -247,16 +260,10 @@ document.querySelectorAll('input, select').forEach(input => {
 });
 calculateDamage();
 </script>
-</script>
 </body>
 </html>
 <!-- 
-Formula:
-    Damage = [(0.4 * Base ATK * (1 + Phys/Mag ATK %) * (1 + Elem ATK %) - 0.2 * Enemy DEF) 
-    * (Ult Multiplier % / 100) * (1 + Ult DMG %) * (1 + Ult ResDown %)] 
-    * (1 + Phys/Mag ATK DMG %) 
-    * Crit Multiplier 
-    * Aegis Multiplier 
-    * Synergy Multiplier 
-    * Pierce Multiplier
+Formula for total damage calculation:
+Damage = { [0.4 * (BaseATK + SynAtk + AegisAtk) * (1 + MPatk/100) * (1 + ElemATKBonus/100) - 0.2 * EnemyDEF] * (UltMult/100) * (1 + UltDMG/100) * (1 + UltResDown/100) * (1 + MPDMG/100 if applicable) * CritMultiplier * SynergyMultiplier * AegisMultiplier * PierceMultiplier } * AttributeAdvantageMultiplier
+
  -->
