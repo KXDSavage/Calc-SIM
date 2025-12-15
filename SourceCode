@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ISEKAI Memories Damage Calculator (Ultimate)</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 20px;
+        background-color: #f4f4f4;
+    }
+    .hidden { display: none; }
+    h1 {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+    .formula {
+        background-color: #fff;
+        padding: 10px;
+        border: 1px solid #ccc;
+        margin-bottom: 20px;
+        font-style: italic;
+        text-align: center;
+        font-size: 12px;
+        line-height: 1.4;
+    }
+    .container {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 20px;
+    }
+    .form-container {
+        width: 45%;
+        background-color: #fff;
+        padding: 15px;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    .result-container {
+        width: 45%;
+        background-color: #d4edda;
+        padding: 15px;
+        border-radius: 8px;
+        border: 1px solid #c3e6cb;
+        text-align: center;
+        font-size: 22px;
+        font-weight: bold;
+    }
+    form label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+        font-size: 12px;
+    }
+    form input, form select {
+        width: 100%;
+        padding: 6px;
+        margin-bottom: 10px;
+        font-size: 12px;
+        box-sizing: border-box;
+    }
+    button {
+        padding: 8px 15px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        cursor: pointer;
+        font-size: 14px;
+        width: 100%;
+    }
+    button:hover {
+        background-color: #0056b3;
+    }
+    #details {
+        margin-top: 10px;
+        font-size: 12px;
+        color: #333;
+    }
+</style>
+</head>
+<body>
+<h1>ISEKAI Memories Damage Calculator</h1>
+
+
+<div class="container">
+    <div class="form-container">
+        <form id="damageForm">
+            <label for="baseAtk">Base ATK:</label>
+            <input type="number" id="baseAtk" value="10000" step="any">
+
+            <label for="MPatk">Phys/Mag ATK (%):</label>
+            <input type="number" id="MPatk" value="0" step="any">
+
+            <label for="MPDMG">Phys/Mag ATK DMG (%):</label>
+            <input type="number" id="MPDMG" value="0" step="any">
+            
+            <label for="atkBuff">ATK(%):</label>
+            <input type="number" id="atkBuff" value="0" step="any">
+
+            <label for="elemAtkBonus">Elem ATK (%):</label>
+            <input type="number" id="elemAtkBonus" value="0" step="any">
+
+            <label for="enemyDef">Enemy DEF:</label>
+            <input type="number" id="enemyDef" value="0" step="any">
+
+            <label for="ultMult">Ult Multiplier (%):</label>
+            <input type="number" id="ultMult" value="100" step="any">
+
+            <label for="ultDmgBonus">Ult DMG (%):</label>
+            <input type="number" id="ultDmgBonus" value="0" step="any">
+
+            <label for="ultResDown">Ult ResDown (%):</label>
+            <input type="number" id="ultResDown" value="0" step="any">
+
+            <label for="crit">Apply Crit?</label>
+            <select id="crit">
+                <option value="no">No</option>
+                <option value="yes">Yes</option>
+            </select>
+            <label for="critDmg">Crit Damage (%):</label>
+            <input type="number" id="critDmg" value="0" step="any">
+
+            <label for="aegis">Apply Aegis?</label>
+            <select id="aegis">
+                <option value="no">No</option>
+                <option value="yes">Yes</option>
+            </select>
+            <label for="pdef">PartnerDef:</label>
+            <input type="number" id="pdef" value="0" step="any">
+            <label for="aegisDmg">Aegis Power (%):</label>
+            <input type="number" id="aegisDmg" value="0" step="any">
+           
+
+            <label for="synergy">Apply Synergy?</label>
+            <select id="synergy">
+                <option value="no">No</option>
+                <option value="yes">Yes</option>
+            </select>
+            <label for="patk">PartnerAtk:</label>
+            <input type="number" id="patk" value="0" step="any">
+            <label for="synergyDmg">Synergy Power (%):</label>
+            <input type="number" id="synergyDmg" value="0" step="any">
+            
+
+            <label for="pierce">Apply Pierce?</label>
+            <select id="pierce">
+                <option value="no">No</option>
+                <option value="yes">Yes</option>
+                
+            </select>
+            <label for="piercePower">Pierce Power (%):</label>
+            <input type="number" id="piercePower" value="0" step="any">
+
+            <label for="attributeAdvantage">Attribute Advantage:</label>
+            <select id="attributeAdvantage">
+                <option value="neutral">Neutral</option>
+                <option value="advantage">Advantage</option>
+                <option value="resist">Resist</option>
+            </select>
+        </form>
+    </div>
+
+    <div class="result-container">
+        <div id="result">Damage: 0</div>
+        <div id="details"></div>
+    </div>
+</div>
+
+<script>
+function calculateDamage() {
+    const baseAtk = parseFloat(document.getElementById('baseAtk').value) || 0;
+    const MPatk = parseFloat(document.getElementById('MPatk').value) || 0;
+    const MPDMG = parseFloat(document.getElementById('MPDMG').value) || 0;
+    const elemAtkBonus = parseFloat(document.getElementById('elemAtkBonus').value) || 0;
+    const enemyDef = parseFloat(document.getElementById('enemyDef').value) || 0;
+    const ultMult = parseFloat(document.getElementById('ultMult').value) || 0;
+    const ultDmgBonus = parseFloat(document.getElementById('ultDmgBonus').value) || 0;
+    const ultResDown = parseFloat(document.getElementById('ultResDown').value) || 0;
+
+    const crit = document.getElementById('crit').value;
+    const critDmg = (parseFloat(document.getElementById('critDmg').value) || 0) / 100;
+
+    const aegis = document.getElementById('aegis').value;
+    const aegisDmg = (parseFloat(document.getElementById('aegisDmg').value) || 0) / 100;
+    const pdef = parseFloat(document.getElementById('pdef').value) || 0;
+
+    const synergy = document.getElementById('synergy').value;
+    const synergyDmg = (parseFloat(document.getElementById('synergyDmg').value) || 0) / 100;
+    const patk = parseFloat(document.getElementById('patk').value) || 0;
+
+    const pierce = document.getElementById('pierce').value;
+    const piercePower = (parseFloat(document.getElementById('piercePower').value) || 0);
+
+    const attributeAdvantage = document.getElementById('attributeAdvantage').value;
+    
+        if (synergy === 'yes') {
+        synatk= (patk*0.4)
+    } else if (synergy === 'no') {
+        synatk= 0
+    }
+    if (aegis === 'yes') {
+        aegisatk= (pdef*0.4)
+    } else if (aegis === 'no') {
+        aegisatk= 0
+    }
+
+    const atkPart = 0.4 * (baseAtk+synatk+aegisatk)* (1 + MPatk / 100) * (1 + elemAtkBonus / 100);
+    const defPart = 0.2 * enemyDef ;
+    let baseDmg = atkPart - defPart;
+    if (baseDmg < 0) baseDmg = 0;
+
+    const ultPart = (ultMult / 100) * (1 + ultDmgBonus / 100)* (1 + ultResDown / 100);
+    let damage = baseDmg * ultPart;
+    if (MPDMG !== 0 && !isNaN(MPDMG)) {
+        damage *= (1+MPDMG / 100);
+    }
+    // Crit, Aegis, Synergy, Pierce
+    if (crit === 'yes') {
+        damage *= (1.3 + critDmg);
+    }
+    if (synergy === 'yes') {
+        damage *= (1 + synergyDmg);
+    }
+    if (aegis === 'yes') {
+        damage *= (1 + aegisDmg);
+    }
+    if (pierce === 'yes') {
+        damage = (damage + baseAtk * 0.06) * (1 + piercePower / 100);
+    }
+    // Apply attribute advantage multiplier
+    if (attributeAdvantage === 'advantage') {
+        damage *= 1.5;
+    } else if (attributeAdvantage === 'resist') {
+        damage *= 0.7;
+    }
+
+    document.getElementById('result').innerHTML = `Damage: ${Math.round(damage)}`;
+    document.getElementById('details').innerHTML = '';
+}
+
+// Auto-update on input
+document.querySelectorAll('input, select').forEach(input => {
+    input.addEventListener('input', calculateDamage);
+});
+calculateDamage();
+</script>
+</script>
+</body>
+</html>
+<!-- 
+Formula:
+    Damage = [(0.4 * Base ATK * (1 + Phys/Mag ATK %) * (1 + Elem ATK %) - 0.2 * Enemy DEF) 
+    * (Ult Multiplier % / 100) * (1 + Ult DMG %) * (1 + Ult ResDown %)] 
+    * (1 + Phys/Mag ATK DMG %) 
+    * Crit Multiplier 
+    * Aegis Multiplier 
+    * Synergy Multiplier 
+    * Pierce Multiplier
+ -->
